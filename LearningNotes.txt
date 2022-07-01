@@ -1,0 +1,151 @@
+Kubernetes Architecture : 
+
+        Kubernetes works on Master-Slave Architecture : 
+
+            Basic Structure :
+
+                    Two Node (Master Node and Slave Node) : Slave Node -> Running Application in a Pods(Container) | Master Node -> Managing Services :-  Container or Pod Both are Same
+                        
+                        Nodes are the Cluster machines that Actually Manages the Execution of the Application :
+                        
+                        Every Node has to be installed with 3 Process : (Worker Nodes)
+                                :   Process-1   :-      container-runtime (Docker Technology)
+                                :   Process-2   :-      process-scheduler (kubelet - type of kernel) ( an interface between container-runtime and machine (node) )  
+                                :   Process-3   :-      kube proxy ( communication-between different processes ) 
+
+                        Master Node Process :
+                                :   Service-1   :-      Api Server                          (Cluster Gateway) -> (Updation or crud Operation Manager)
+                                :   Service-2   :-      scheduler                           (creation or deletion of pods with required resources on a node/container )
+                                :   Service-3   :-      controller manager                  (monitoring the state changes like "dying pods", "terminated pods" and rescheduling the pods )
+                                :   Service-4   :-      etcd(key-value pairs data center)   (Changes are saved) (note : Database data is not stored)
+
+            Setting Up a K8s Cluster :  
+
+                Production Cluster Setup :
+                    -   there are Multiple Master and Worker Nodes  
+                    -   on actually separate virtual or physical machine that represent a node 
+
+                Installation of K8s in the Local Machine :
+                    -   open_source tool minitool called = minikube
+                                    creates virtual box on your laptop
+                                    node runs in theat virtual box
+                                    1 Node K8s Cluster
+                    
+                    -   kubectl : is an interface to actually interacting with the Api Server ->  Main entry point (api server)
+
+
+            Installation : 
+
+                Virtualization : should be on : 
+
+                    1   ->  sudo apt install hyperkit   (hyperviser) 
+                    2   ->  sudo apt install minikube  (kubernetes-cli -> is installed as a dependencies)
+    
+                commands for using the kubectl :
+
+                     : kubectl  ->enter
+                     : minikube ->enter
+
+
+                     -->
+
+                        minikube start --vm-driver=hyperkit   (specifying a specific driver to work with to start a Cluster) 
+                            NOTE : minikube is pre-installed with Docker
+
+
+                    Commands used in kubectl :
+
+                        $ kubectl get Nodes
+                        $ minikube status
+                        $ kubectl version       -> should display Server Verion as well as Client version
+                        
+                    Main Commands of kubectl :
+
+                        $ kubectl get nodes
+                        $ kubectl get pod
+                        $ kubectl get services
+
+                        creating a pod :    pods are the smallest units and we dont create them : Deployment - abstraction layer over Pods
+
+                            lets create nginx-depl 
+
+                                $ kubectl create deployment nginx-depl --image=nginx   : --> (output : deployment.apps/nginx-depl created)
+                                $ kubectl get deployment
+                                $ kubctl get pod
+                                $ kubectl get replicaset
+
+
+
+                                Layers of abstraction :
+
+                                    Deployment
+                                    replicaset
+                                    Pod  abstraction of a Container
+
+                                    Edit a Pod :
+
+                                    $ kubctl edit deployment nginx-depl
+                                    
+                                    $ kubctl get pod
+                                
+                                    $ kubctl logs <pod-name>  {nginx-depl-{id}}
+
+                                    $ kubctl describe pod <pod-name>
+
+                                    $ kubctl exec -it <pod-name> -- bin/bash   : --> we will enter into a Terminal
+                                        
+                                        Note : every pod is a virtual machine that has its own terminal :
+                                    
+                                    Deleting a Pod
+
+                                    $ kubectl delete deployment <pod-name>
+
+                                    $ kubctl get pod
+                                
+                                In Actual practice / in Production 
+
+                                    we usually write a configuration file that is then run by a command so that the file can be executed
+
+                                    command for the execution of the files are : 
+                                        
+                                        $ kubectl apply -f [file_name]
+
+creating a yaml file for the exection / deployment of the pod :
+
+    data :
+
+config file :
+
+        apiVerion: apps/v1
+        kind: Deployment
+        metadata: 
+          name: nginx-deployment
+          labels:
+            app: nginx
+        spec:           -->  specification for the deployment
+          replicas: 1
+          selector:
+            matchLabels:
+              app: nginx
+          template:
+            metadata:
+              labels:
+                app: nginx
+            spec:           -->  specification for the pod
+              containers:
+              - name: nginx
+                image: nginx:1.16
+                ports:
+                -  containerPort: 80
+        
+                        
+                        
+
+
+yaml File Structure
+
+    1   metadata
+    2   spec (specification)
+            attributes :
+                replicas: 2
+    3   status
